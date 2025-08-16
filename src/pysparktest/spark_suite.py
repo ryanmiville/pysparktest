@@ -26,10 +26,16 @@ def spark_session() -> Generator[SparkSession, None, None]:
         "SparkSessionCatalog" if catalog_name == "spark_catalog" else "SparkCatalog"
     )
 
+    iceberg_version = "1.9.2"
+
     spark = (
         SparkSession.builder.master("local[*]")
         .appName("pytest-spark-test")
         .config("spark.sql.shuffle.partitions", "1")
+        .config(
+            "spark.jars.packages",
+            f"org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:{iceberg_version}",
+        )
         .config(
             f"spark.sql.catalog.{catalog_name}",
             f"org.apache.iceberg.spark.{catalog_impl}",
@@ -45,7 +51,6 @@ def spark_session() -> Generator[SparkSession, None, None]:
         .config("spark.sql.adaptive.enabled", "false")
         .getOrCreate()
     )
-
     # Set log level to reduce noise during testing
     spark.sparkContext.setLogLevel("ERROR")
 

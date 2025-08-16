@@ -3,22 +3,13 @@ name = "pysparktest"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-authors = [
-    { name = "Ryan Miville", email = "ryan.miville@terminus.com" }
-]
+authors = [{ name = "Ryan Miville", email = "ryan.miville@terminus.com" }]
 requires-python = ">=3.13"
-dependencies = [
-    "pyspark>=4.0.0",
-    "pytest>=8.4.1",
-    "importlib-resources>=6.4.0",
-]
+dependencies = ["pyspark>=3.5.6,<4.0.0", "pytest>=8.4.1", "importlib-resources>=6.4.0"]
 
 [build-system]
 requires = ["uv_build>=0.8.11,<0.9.0"]
 build-backend = "uv_build"
 
 [dependency-groups]
-dev = [
-    "ruff>=0.12.9",
-    "ty>=0.0.1a18",
-]
+dev = ["ruff>=0.12.9", "ty>=0.0.1a18"]

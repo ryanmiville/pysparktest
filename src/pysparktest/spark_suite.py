@@ -144,7 +144,7 @@ def create_spark_suite_fixture(migrations_path: str):
             # Use spark with migrations
     """
 
-    @pytest.fixture
+    @pytest.fixture(autouse=True)
     def custom_spark_suite(spark_session: SparkSession):
         run_migrations(migrations_path, spark_session)
         return spark_session

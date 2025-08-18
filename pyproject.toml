@@ -5,7 +5,11 @@ description = "Add your description here"
 readme = "README.md"
 authors = [{ name = "Ryan Miville", email = "ryan.miville@terminus.com" }]
 requires-python = ">=3.13"
-dependencies = ["pyspark>=3.5.6,<4.0.0", "pytest>=8.4.1", "importlib-resources>=6.4.0"]
+dependencies = [
+  "pyspark>=3.5.6,<4.0.0",
+  "pytest>=8.4.1",
+  "importlib-resources>=6.4.0",
+]
 
 [build-system]
 requires = ["uv_build>=0.8.11,<0.9.0"]

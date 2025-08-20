@@ -6,8 +6,8 @@ from pysparktest import run_migrations
 
 
 @pytest.fixture(autouse=True, scope="module")
-def spark(spark_session):
-    run_migrations("tests/migrations", spark_session)
+def spark(spark_session, request):
+    run_migrations("tests/migrations", spark_session, request)
     data = [
         (1, "Alice", "2025-01-01"),
         (2, "Bob", "2025-01-02"),

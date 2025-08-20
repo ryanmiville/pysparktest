@@ -1,7 +1,9 @@
 """Migration runner for executing SQL files in sorted order."""
 
+import shutil
 from pathlib import Path
-from typing import List
+
+from pytest import FixtureRequest
 
 try:
     from importlib.resources import files
@@ -11,7 +13,9 @@ except ImportError:
 from pyspark.sql import SparkSession
 
 
-def run_migrations(migrations_path: str, spark: SparkSession) -> None:
+def run_migrations(
+    migrations_path: str, spark: SparkSession, request: FixtureRequest | None = None
+) -> None:
     """
     Recursively walks the specified path to find all .sql files and runs them.
     Note that the migrations are expected to be in the resources directory.
@@ -19,6 +23,7 @@ def run_migrations(migrations_path: str, spark: SparkSession) -> None:
     Args:
         migrations_path: The path to the migrations (e.g., "/path/to/migrations")
         spark: The Spark session to use for executing SQL
+        request: Optional pytest request object for registering cleanup finalizers
     """
     migration_files = _list_migration_files(migrations_path)
     sorted_migrations = sorted(migration_files)
@@ -27,6 +32,15 @@ def run_migrations(migrations_path: str, spark: SparkSession) -> None:
         content = _read_migration(migration_file)
         if content.strip():
             spark.sql(content)
+
+    # If pytest request is available, register cleanup
+    if request is not None:
+        warehouse_dir = spark.conf.get("spark.sql.catalog.spark_catalog.warehouse")
+
+        def cleanup_warehouse():
+            shutil.rmtree(warehouse_dir, ignore_errors=True)
+
+        request.addfinalizer(cleanup_warehouse)
 
 
 def _read_migration(resource_path: str) -> str:
@@ -60,7 +74,7 @@ def _read_migration(resource_path: str) -> str:
     raise FileNotFoundError(f"Migration file not found: {resource_path}")
 
 
-def _list_migration_files(root_path: str) -> List[str]:
+def _list_migration_files(root_path: str) -> list[str]:
     """List all .sql files in the given path."""
     clean_path = root_path.lstrip("/")
     migration_files = []
@@ -98,7 +112,7 @@ def _list_migration_files(root_path: str) -> List[str]:
     return [f for f in migration_files if f.endswith(".sql")]
 
 
-def _walk_resource_directory(resource_dir, prefix: str) -> List[str]:
+def _walk_resource_directory(resource_dir, prefix: str) -> list[str]:
     """Walk a resource directory and return all file paths."""
     files_list = []
     try:
@@ -113,7 +127,7 @@ def _walk_resource_directory(resource_dir, prefix: str) -> List[str]:
     return files_list
 
 
-def _walk_filesystem_directory(directory: Path, prefix: str) -> List[str]:
+def _walk_filesystem_directory(directory: Path, prefix: str) -> list[str]:
     """Walk a filesystem directory and return all file paths."""
     files_list = []
     try:

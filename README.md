@@ -27,15 +27,15 @@ uv add git+ssh://git@github.com/ryanmiville/pysparktest.git
 ### Basic Usage
 
 ```python
-from pysparktest import SparkTestCase
+@pytest.fixture(autouse=True, scope="module")
+def spark(spark_session, request):
+    run_migrations("tests/migrations", spark_session, request)
+    return spark_session
 
-class TestWithMigrations(SparkTestCase):
-    migrations_path = "/path/to/your/sql/migrations"
-    
-    def test_migrated_tables(self, spark_suite):
-        # Your migration SQL files have been executed
-        df = self.spark.table("your_database.your_table")
-        assert df.count() >= 0
+def test_migrated_tables(spark):
+    # Your migration SQL files have been executed
+    df = spark.table("your_database.your_table")
+    assert df.count() >= 0
 ```
 
 ## Requirements
